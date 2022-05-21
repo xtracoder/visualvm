@@ -543,10 +543,10 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
     // --- Lazy setting text ---------------------------------------------------
     private String pendingText;
     private int pendingDot = -1;
-    
+
     private String currentText;
     private boolean forceSetText;
-    
+
     //~ Constructors -------------------------------------------------------------------------------------------------------------
 
     public HTMLTextArea() {
@@ -556,9 +556,10 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
         setAutoscrolls(true);
         addHyperlinkListener(this);
         setTransferHandler(new HTMLTextAreaTransferHandler());
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
         setFont(UIManager.getFont("Label.font")); //NOI18N
         setBackground(UIUtils.getProfilerResultsBackground());
-        
+
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE)
@@ -582,12 +583,12 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
     }
 
     //~ Methods ------------------------------------------------------------------------------------------------------------------
-    
+
     public EditorKit getEditorKitForContentType(String type) {
         // Always assumes "text/html" as this is a HTML displayer
         return new HTMLEditorKit();
     }
-    
+
     public void setOpaque(boolean o) {
         super.setOpaque(o);
         if (UIUtils.isNimbusLookAndFeel() && !o)
@@ -610,7 +611,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
     public boolean getShowPopup() {
         return showPopup;
     }
-    
+
     public void setCaretPosition(int position) {
         if (pendingText == null) super.setCaretPosition(position);
         else pendingDot = position;
@@ -691,7 +692,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             getDocument().remove(getSelectionStart(), getSelectionEnd() - getSelectionStart());
         } catch (Exception ex) {}
     }
-    
+
     private void invokeSelectedLink() {
         for (Action action : getEditorKit().getActions()) {
             if ("activate-link-action".equals(action.getValue(Action.NAME))) {  // NOI18N
@@ -717,16 +718,16 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             setCursor(Cursor.getDefaultCursor());
         }
     }
-    
+
     public URL getActiveLink() {
         return activeLink;
     }
-    
+
     protected void processMouseEvent(MouseEvent e) {
         if (e.isPopupTrigger()) showPopupMenu(e);
         super.processMouseEvent(e);
     }
-    
+
     protected void processKeyEvent(KeyEvent e) {
         int code = e.getKeyCode();
         if (code == KeyEvent.VK_CONTEXT_MENU ||
@@ -734,10 +735,10 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             e.consume();
             showPopupMenu(null);
         }
-        
+
         super.processKeyEvent(e);
     }
-    
+
     private void showPopupMenu(MouseEvent e) {
         if (isEnabled() && isFocusable() && showPopup) {
             JPopupMenu popup = new JPopupMenu();
@@ -746,7 +747,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             if (popup.getComponentCount() > 0) {
 
                 if (!hasFocus()) requestFocus(); // required for Select All functionality
-                
+
                 int x, y;
                 if (e != null) {
                     x = e.getX();
@@ -755,7 +756,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
                     Rectangle vis = getVisibleRect();
                     x = vis.x + vis.width / 2;
                     y = vis.y + vis.height / 2;
-                    
+
                     try {
                         Rectangle pos = modelToView(getCaretPosition());
                         if (pos != null) {
@@ -780,28 +781,28 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
         popup.add(createDeleteMenuItem());
         popup.addSeparator();
         popup.add(createSelectAllMenuItem());
-        
-        Action find = getActionMap().get(HTMLTextAreaSearchUtils.FIND_ACTION_KEY); 
+
+        Action find = getActionMap().get(HTMLTextAreaSearchUtils.FIND_ACTION_KEY);
         if (find != null) {
             popup.addSeparator();
             popup.add(new JMenuItem(find));
         }
     }
-    
+
     protected JMenuItem createCutMenuItem() {
         return new JMenuItem(CUT_STRING) {
             { setEnabled(isEditable() && getSelectedText() != null); }
             protected void fireActionPerformed(ActionEvent e) { cut(); }
         };
     }
-    
+
     protected JMenuItem createCopyMenuItem() {
         return new JMenuItem(COPY_STRING) {
             { setEnabled(getSelectedText() != null); }
             protected void fireActionPerformed(ActionEvent e) { copy(); }
         };
     }
-    
+
     protected JMenuItem createPasteMenuItem() {
         return new JMenuItem(PASTE_STRING) {
             {
@@ -819,7 +820,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             protected void fireActionPerformed(ActionEvent e) { paste(); }
         };
     }
-    
+
     protected JMenuItem createDeleteMenuItem() {
         return new JMenuItem(DELETE_STRING) {
             {
@@ -832,20 +833,20 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
             protected void fireActionPerformed(ActionEvent e) { deleteSelection(); }
         };
     }
-    
+
     protected JMenuItem createSelectAllMenuItem() {
         return new JMenuItem(SELECT_ALL_STRING) {
             protected void fireActionPerformed(ActionEvent e) { selectAll(); }
         };
     }
-    
+
     public void paste() {
         try {
             replaceSelection(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this)
                                     .getTransferData(DataFlavor.stringFlavor).toString());
         } catch (Exception ex) {}
     }
-    
+
     protected void showURL(URL url, InputEvent e) {
         showURL(url);
     }
@@ -853,7 +854,7 @@ public class HTMLTextArea extends JEditorPane implements HyperlinkListener {
     protected void showURL(URL url) {
         // override to react to URL clicks
     }
-    
+
     private static int getHeaderEndIndex(String htmlText) {
         if (htmlText.startsWith("<head>")) {
             return htmlText.indexOf("</head>")+"</head>".length();

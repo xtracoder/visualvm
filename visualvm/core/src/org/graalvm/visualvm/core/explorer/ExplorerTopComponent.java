@@ -25,9 +25,10 @@
 
 package org.graalvm.visualvm.core.explorer;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.util.ImageUtilities;
@@ -35,6 +36,8 @@ import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+
+import javax.swing.*;
 
 /**
  *
@@ -45,13 +48,14 @@ final class ExplorerTopComponent extends TopComponent {
 
     private static final String PREFERRED_ID = "ExplorerTopComponent";  // NOI18N
     private static final Logger LOGGER = Logger.getLogger(ExplorerTopComponent.class.getName());
-    
+
     static final String ICON_PATH = "org/graalvm/visualvm/core/ui/resources/explorer.png";    // NOI18N
 
     private static ExplorerTopComponent instance;
 
 
     private ExplorerTopComponent() {
+        replaceFonts();
         initComponents();
         setName(NbBundle.getMessage(ExplorerTopComponent.class, "LBL_Applications"));   // NOI18N
         setToolTipText(NbBundle.getMessage(ExplorerTopComponent.class, "LBL_Applications"));    // NOI18N
@@ -65,13 +69,35 @@ final class ExplorerTopComponent extends TopComponent {
             }
         });
     }
-  
+
+    private void replaceFonts() {
+        Font font = new Font("Tahoma", Font.PLAIN, 11);
+        replaceFonts(UIManager.getDefaults(), font);
+        replaceFonts(UIManager.getLookAndFeel().getDefaults(), font);
+    }
+
+    private void replaceFonts(UIDefaults defaults, Font newFont) {
+        defaults.put("Label.font", newFont);
+
+//        for( Enumeration<Object> e = defaults.keys(); e.hasMoreElements(); ){
+//            Object key = e.nextElement();
+//            Object font = defaults.get(key);
+//            if( !(font instanceof Font) )
+//                continue;
+//
+//            String msg = key + ": " + font;
+//            System.out.println(msg);
+//
+//            defaults.put(key, newFont);
+//        }
+    }
+
     private void initComponents() {
         setLayout(new BorderLayout());
         add(ExplorerComponent.instance(), BorderLayout.CENTER);
     }
-    
-    
+
+
     /**
     * Gets default instance. Do not use directly: reserved for *.settings files only,
     * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -81,7 +107,7 @@ final class ExplorerTopComponent extends TopComponent {
         if (instance == null) instance = new ExplorerTopComponent();
         return instance;
     }
-    
+
     /**
     * Obtain the ExplorerTopComponent instance. Never call {@link #getDefault} directly!
     */
@@ -89,13 +115,13 @@ final class ExplorerTopComponent extends TopComponent {
         TopComponent explorerTopComponent = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (explorerTopComponent == null) return getInstance();
         if (explorerTopComponent instanceof ExplorerTopComponent) return (ExplorerTopComponent)explorerTopComponent;
-    
+
         if (LOGGER.isLoggable(Level.WARNING)) {
             LOGGER.warning("There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");   // NOI18N
     }
         return getInstance();
     }
-    
+
     private boolean needsDocking() {
         return WindowManager.getDefault().findMode(this) == null;
     }
@@ -107,11 +133,11 @@ final class ExplorerTopComponent extends TopComponent {
         }
         super.open();
     }
-    
+
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
-  
+
     protected String preferredID() {
         return PREFERRED_ID;
     }
